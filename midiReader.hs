@@ -11,7 +11,7 @@ readMidi path = do
 
 main :: IO ()
 main = do
-    music <- readMidi "badApple.mid"  
+    music <- readMidi "Driftveil.mid"  
     case music of
         Just m -> play m  -- Play the music
         Nothing -> putStrLn "Error reading MIDI file."

@@ -101,7 +101,7 @@ Some music that we'll repeat. Think of this as a placeholder for a backing
 track or some other computer accompaniment.
 
 > someMusic :: Music AbsPitch
-> someMusic = line $ map (note qn) [60,64,67,64]
+> someMusic = line $ map (note qn) []
 
 Now we send this to the MIDI out indefinitely, but only adding to the 
 buffer on an as-needed basis. This is necessary if we were to have a computer 
