@@ -61,6 +61,11 @@ Windows compilation and execution from PowerShell
 > import System.Random
 > import System.Exit 
 
+sendProgramChange :: OutputDeviceID -> Int -> Int -> IO ()
+sendProgramChange outDev channel program = do
+    let msg = ProgramChange channel program
+    deliverMidiEvent outDev (0, msg)
+
 > main = do
 >  hSetBuffering stdout NoBuffering
 >  hSetBuffering stdin NoBuffering
