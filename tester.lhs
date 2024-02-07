@@ -2,10 +2,6 @@
 > module SimpleMusic where
 > import Euterpea
 
-This module gives examples of constructing small fragments
-of music with Euterpea's Music data structures. At the end, 
-there is also an example of pattern matching against these 
-data structures.
 
 First, we will start with several ways to build the same 
 melody with different syntax and functions from Euterpea:
