@@ -1,50 +1,8 @@
-Real-time MIDI I/O with Euterpea.
-Donya Quick
-Last modified: 24-Feb-2020
-
-This program has the following MIDI I/O features:
-- Receiving input from a MIDI device (like a user-played MIDI controller)
-- Echoing input MIDI events to an output MIDI device
-- Sending timed, generated Euterpea Music values to the same MIDI output device.
-
-The generated music in this case is a simple C-major arppegio that will  
-accompany whatever the user plays via the MIDI input device.
-
-The program continues indefinitely until the user exits via Ctrl+C. You may 
-need to press this more than once depending on the system.
-
-This implementation uses only Euterpea and its dependencies (PortMidi) to 
-handle MIDI I/O (it does not use HSoM or MUIs). The general framework it 
-presents is suitable for being adapted into a real-time accompaniment 
-system that generates Euterpea Music values provided that the generative 
-functions are sufficiently fast.
-
-On Mac, the timing of generative output should appear sufficiently steady with
-most synthesizers, includig SimpleSynth.
- 
-On Windows, it will also be steady if using an ASIO-based sound device and 
-synthesizer. However, using the default GS synth on Windows, there will both 
-be lag responding to user input and an initial timing irregularity with the 
-first note piped out. This is not a fault of the program - it's a result of 
-the high latency associated with the default Windows synth. Windows users 
-should use ASIO-based synths if possible, and if not should seek a different 
-synthesizer like Coolsoft VirualMidiSynth that permits some degree of control
-over its latency. 
 
 Within GHCi, load this file and then use 'devices' to check your MIDI input 
 and output device numbers. Then run the program using 'mainLoop' as follows:
 
 mainLoop inDevNum outDevNum
-
-Mac compilation and execution from Terminal:
-    ghc -O2 RealTimeMidiIO.lhs -o Main
-    ./Main inDevNum outDevNum
-    (ex: Main 0 1)
-    
-Windows compilation and execution from PowerShell
-    ghc -O2 RealTimeMidiIO.lhs -o Main.exe
-    ./Main.exe inDevNum outDevNum
-    (ex: ./Main.exe 0 1)
 
 > module Main where
 > import Euterpea
@@ -102,15 +60,8 @@ sendProgramChange outDev channel program = do
 >                 exitSuccess 
 >     
 
-Some music that we'll repeat. Think of this as a placeholder for a backing 
-track or some other computer accompaniment.
-
 > someMusic :: Music AbsPitch
 > someMusic = line $ map (note qn) []
-
-Now we send this to the MIDI out indefinitely, but only adding to the 
-buffer on an as-needed basis. This is necessary if we were to have a computer 
-response that adapts to the user's input in some way over time.
 
 > genRec genBuf stopSig = do
 >     wait 0.05 -- we're generating a measure at a time; don't need to regen very often
@@ -133,9 +84,6 @@ This function is just to delay main until the user has pressed Ctrl+C.
 >     stopNow <- atomically $ readTVar stopSignal
 >     if stopNow then return () else detectExitLoop stopSignal 
 
-MIDI input is received by repeatedly polling the MIDI input device. 
-Importantly, this can't be done too fast. Trying to do it as fast as the 
-program can possibly execute will actually result in lag.
 
 > midiInRec :: InputDeviceID -> TVar [(Time, MidiMessage)] -> TVar Bool -> IO ()
 > midiInRec inDev inBuf stopSignal = do
@@ -169,10 +117,6 @@ information between the input and output threads.
 >         midiOutRec newMsgTime outDev inBuf genBuf stopSig where
 >     posixFix :: NominalDiffTime -> Double
 >     posixFix x = fromIntegral (round(x * 1000)) / 1000
-
-====== Just utility functions below this point ======
-
-Just add values to the end of the buffer:
 
 > addMsgs :: TVar [a] -> [a] -> STM ()
 > addMsgs v [] = return () 
