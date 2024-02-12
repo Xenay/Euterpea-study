@@ -9,7 +9,7 @@ type MarkovChain = [(Pitch, [(Pitch, Double)])]
 
 -- Define a simple Markov chain for a E minor scale within one octave
 markovChainEminor  :: MarkovChain
-markovChainEminor  = 
+markovChainEminor = 
     [((E, 4), [((Fs, 4), 0.8), ((G, 4), 0.2)]),
      ((Fs, 4), [((E, 4), 0.3), ((G, 4), 0.7)]),
      ((G, 4), [((Fs, 4), 0.2), ((A, 4), 0.8)]),
@@ -67,10 +67,42 @@ generateMusic chain numNotes startingPitch gen =
         bassLine = generateBassLine numNotes
     in melody :=: bassLine
 
+--octave shenanigans
+octUp :: Music Pitch -> Music Pitch
+octUp (Prim (Note d (p,o))) = note d (p, o+1)
+octUp (Prim (Rest d)) = rest d
+octUp (m1 :+: m2) = octUp m1 :+: octUp m2
+octUp (m1 :=: m2) = octUp m1 :=: octUp m2
+octUp (Modify c m) = Modify c (octUp m)
 
+octDown :: Music Pitch -> Music Pitch
+octDown (Prim (Note d (p,o))) = note d (p, o-1)
+octDown (Prim (Rest d)) = rest d
+octDown (m1 :+: m2) = octDown m1 :+: octDown m2
+octDown (m1 :=: m2) = octDown m1 :=: octDown m2
+octDown (Modify c m) = Modify c (octDown m)
+
+adjustOctave :: Music Pitch -> Int -> Music Pitch
+adjustOctave music n
+    | n > 0 = iterate octUp music !! n
+    | n < 0 = iterate octDown music !! abs n
+    | otherwise = music
+
+--tempo shenanigans
+adjustTempo :: Double -> Music Pitch -> Music Pitch
+adjustTempo bpm music = tempo (fromRational . toRational $ bpm / 120) music
 
 main :: IO ()
 main = do
+    putStrLn "Enter octave change (positive for up, negative for down): "
+    octaveChange <- readLn
+    putStrLn "Enter desired tempo in BPM: "
+    bpm <- readLn
+
     gen <- newStdGen
-    let music = generateMusic markovChainEminor 32 (E, 4) gen
-    play music
+    let melody = generateMelody markovChainEminor 32 (E, 4) gen
+        bassLine = generateBassLine 16
+        music = adjustOctave (melody :=: bassLine) octaveChange
+        finalMusic = adjustTempo bpm music
+
+    play finalMusic

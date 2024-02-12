@@ -23,16 +23,17 @@ randomMel pitches durs g0 = randomMelody (choose pitches g0) g0
           (dur, g2) = choose durs g1
           mel = note dur nextPitch
       in mel :+: randomMelody (nextPitch, g2) gMain
-
+    
     -- Decide on the next note to play based on the current note
     nextNote :: Pitch -> [Pitch] -> StdGen -> (Pitch, StdGen)
     nextNote currentP ps g =
       let (step, g1) = randomR (-2, 2) g -- Limit step size to create stepwise motion
           nextP = transpose step currentP
-      in if elem nextP ps  -- Check if the next pitch is within the scale
+      in if nextP `elem` ps
          then (nextP, g1)
          else nextNote currentP ps g1 -- Recursively call until a valid note is found
 
+    
 -- Convert an AbsPitch to a Pitch
 toPitch :: AbsPitch -> Pitch
 toPitch ap = pitch ap
