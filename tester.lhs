@@ -1,7 +1,5 @@
-
 > module SimpleMusic where
 > import Euterpea
-
 
 First, we will start with several ways to build the same 
 melody with different syntax and functions from Euterpea:

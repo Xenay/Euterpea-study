@@ -1,4 +1,4 @@
-module AlgorithmicTonalMusic where
+module BossaNovaRandom where
 
 import Euterpea
 import System.Random
@@ -24,14 +24,19 @@ randomMel pitches durs g0 = randomMelody (choose pitches g0) g0
           mel = note dur nextPitch
       in mel :+: randomMelody (nextPitch, g2) gMain
     
+   
     -- Decide on the next note to play based on the current note
-    nextNote :: Pitch -> [Pitch] -> StdGen -> (Pitch, StdGen)
-    nextNote currentP ps g =
-      let (step, g1) = randomR (-2, 2) g -- Limit step size to create stepwise motion
-          nextP = transpose step currentP
-      in if nextP `elem` ps
-         then (nextP, g1)
-         else nextNote currentP ps g1 -- Recursively call until a valid note is found
+nextNote :: Pitch -> [Pitch] -> StdGen -> (Pitch, StdGen)
+nextNote currentP ps g =
+  let (step, g1) = randomR (-2, 2) g -- Limit step size to create stepwise motion
+      nextP = transAbsPitch step currentP -- Ensure currentP is a Pitch
+  in if nextP `elem` ps
+     then (nextP, g1)
+     else nextNote currentP ps g1 -- Recursively call until a valid note is found
+
+-- Transpose a pitch by a given number of semitones
+transAbsPitch :: Int -> Pitch -> Pitch
+transAbsPitch n (pc, oct) = pitch $ (absPitch (pc, oct)) + n
 
     
 -- Convert an AbsPitch to a Pitch

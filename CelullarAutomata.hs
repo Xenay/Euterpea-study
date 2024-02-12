@@ -7,7 +7,7 @@ rule90, rule30, rule110, rule54, rule184 :: Bool -> Bool -> Bool -> Bool
 
 rule90 left current right = left /= right
 
-rule30 left current right = 
+rule30 left current right =
     case (left, current, right) of
         (False, False, True) -> True
         (False, True, True) -> True
@@ -15,7 +15,7 @@ rule30 left current right =
         (True, False, True) -> True
         _ -> False
 
-rule110 left current right = 
+rule110 left current right =
     case (left, current, right) of
         (True, True, True)   -> False
         (True, True, False)  -> True
@@ -26,7 +26,7 @@ rule110 left current right =
         (False, False, True) -> True
         (False, False, False) -> False
 
-rule54 left current right = 
+rule54 left current right =
     case (left, current, right) of
         (True, False, True) -> True
         (True, False, False) -> True
@@ -34,7 +34,7 @@ rule54 left current right =
         (False, False, True) -> True
         _ -> False
 
-rule184 left current right = 
+rule184 left current right =
     case (left, current, right) of
         (True, True, True) -> True
         (True, True, False) -> False
@@ -80,11 +80,11 @@ visualizeGeneration = map (\b -> if b then '#' else '.')
 
 -- Visualize the entire CA
 visualizeCA :: [[Bool]] -> IO ()
-visualizeCA caStates = mapM_ (putStrLn . visualizeGeneration) caStates
+visualizeCA = mapM_ (putStrLn . visualizeGeneration)
 
 -- Convert CA states to music
 caToMusic :: [[Bool]] -> [Pitch] -> Music Pitch
-caToMusic caStates scale = foldr (:+:) (rest 0) $ map (`boolsToMusic` scale) caStates
+caToMusic caStates scale = foldr ((:+:) . (`boolsToMusic` scale)) (rest 0) caStates
 
 -- Main function with rule selection
 main :: IO ()
@@ -104,7 +104,7 @@ main = do
                   "4" -> rule54
                   "5" -> rule184
                   _   -> rule90  -- Default to rule90 if invalid input
-    
+
     putStrLn "Choose CA generation method:"
     putStrLn "1. Simple CA generation (centered single True)"
     putStrLn "2. Advanced CA generation (custom initial state and rule)"
@@ -115,7 +115,7 @@ main = do
                       "1" -> generateCA rule 32  -- Now correctly applies `rule` as an argument
                       "2" -> generateCAWithRule rule 32
                       _   -> generateCA rule 32  -- Default to simple CA generation if invalid input
-    
+
     visualizeCA caStates
     let music = caToMusic caStates eMinorScale
     play music
