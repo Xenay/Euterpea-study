@@ -68,4 +68,4 @@ myKeys = [(1, efMaj), (1, fMin), (2, cMin)] ++ repeat (2, cMin)
 
 -- The main Bossa Nova piece
 bossa :: Music Pitch
-bossa = tempo 1.25 $ makeBossa myKeys (mkStdGen 123)
+bossa = tempo 1.25 $ makeBossa myKeys (mkStdGen 200)
